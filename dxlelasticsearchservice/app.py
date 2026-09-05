@@ -212,14 +212,14 @@ class ElasticsearchService(Application):
                         setting, section, ex))
             if return_type == str:
                 return_value = return_value.strip()
-                if len(return_value) is 0 and raise_exception_if_missing:
+                if len(return_value) == 0 and raise_exception_if_missing:
                     raise ValueError(
                         "Required setting {} in section {} is empty".format(
                             setting, section))
             elif return_type == list:
                 return_value = [item.strip()
                                 for item in return_value.split(",")]
-                if len(return_value) is 1 and len(return_value[0]) is 0 \
+                if len(return_value) == 1 and len(return_value[0]) == 0 \
                         and raise_exception_if_missing:
                     raise ValueError(
                         "Required setting {} in section {} is empty".format(
