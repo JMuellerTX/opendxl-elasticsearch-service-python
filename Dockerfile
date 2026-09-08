@@ -11,14 +11,15 @@ WORKDIR /tmp/build
 RUN python ./clean.py
 
 # Install application and its dependencies.
-# - dxlbootstrap 0.2.x still imports pkg_resources, which setuptools >= 82 no
-#   longer ships
-# - the dxlclient release on PyPI pins msgpack<1.0.0 (GHSA-6v7p-g79w-8964);
-#   install the fixed client from the fork before the application pulls it in
+# - the dxlclient release on PyPI pins msgpack<1.0.0 (GHSA-6v7p-g79w-8964)
+# - the dxlbootstrap release on PyPI imports pkg_resources, which setuptools
+#   >= 82 no longer ships
+# Both are installed from the fork before the application pulls them in.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
-    && pip install --no-cache-dir "setuptools<82" \
+    && pip install --no-cache-dir \
         "dxlclient @ git+https://github.com/derjochenmueller/opendxl-client-python@epo-legacy" \
+        "dxlbootstrap @ git+https://github.com/derjochenmueller/opendxl-bootstrap-python@master" \
     && pip install --no-cache-dir . \
     && apt-get purge -y --auto-remove git \
     && rm -rf /var/lib/apt/lists/*
