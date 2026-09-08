@@ -47,6 +47,8 @@ jobs:
 
     - name: Execute CI
       run: |
-        python -m dxlclient provisionconfig sample 127.0.0.1 client -u admin -p password
+        # The throwaway broker signs its management certificate itself; the fork's client
+        # validates it by default, so this one run has to opt out.
+        python -m dxlclient provisionconfig sample 127.0.0.1 client -u admin -p password --insecure
         cat sample/dxlclient.config
         python -m pytest tests
