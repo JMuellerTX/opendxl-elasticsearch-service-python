@@ -39,4 +39,10 @@ RUN rm -rf /tmp/build
 #
 #   -v /host/dir/to/config:/opt/dxlelasticsearchservice-config
 #
+# Run the service as an unprivileged user. The configuration directory is only
+# read - these services log to stdout - so a host directory mounted there has
+# to be readable by this user, not owned by it.
+RUN useradd --system --create-home --shell /usr/sbin/nologin --uid 10001 dxl
+USER dxl
+
 CMD ["python", "-m", "dxlelasticsearchservice", "/opt/dxlelasticsearchservice-config"]
