@@ -18,8 +18,8 @@ RUN python ./clean.py
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
     && pip install --no-cache-dir \
-        "dxlclient @ git+https://github.com/JMuellerTX/opendxl-client-python@epo-legacy" \
-        "dxlbootstrap @ git+https://github.com/JMuellerTX/opendxl-bootstrap-python@master" \
+        "dxlclient @ git+https://github.com/JMuellerTX/opendxl-client-python@fork-2026-09-21-epo-legacy" \
+        "dxlbootstrap @ git+https://github.com/JMuellerTX/opendxl-bootstrap-python@fork-2026-09-21" \
     && pip install --no-cache-dir . \
     && apt-get purge -y --auto-remove git \
     && rm -rf /var/lib/apt/lists/*
