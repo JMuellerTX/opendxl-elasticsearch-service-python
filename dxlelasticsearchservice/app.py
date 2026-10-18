@@ -397,7 +397,19 @@ class ElasticsearchService(Application):
                 return_type=bool,
                 default_value=False)
 
-        logger.debug("Server host settings: %s", server_hosts)
+        redacted_hosts = []
+        for host_cfg in server_hosts:
+            if isinstance(host_cfg, dict) and "http_auth" in host_cfg:
+                cfg_copy = host_cfg.copy()
+                auth_val = cfg_copy["http_auth"]
+                if isinstance(auth_val, (tuple, list)) and len(auth_val) >= 2:
+                    cfg_copy["http_auth"] = (auth_val[0], "--redacted--")
+                else:
+                    cfg_copy["http_auth"] = "--redacted--"
+                redacted_hosts.append(cfg_copy)
+            else:
+                redacted_hosts.append(host_cfg)
+        logger.debug("Server host settings: %s", redacted_hosts)
         self._es_client = Elasticsearch(server_hosts)
 
     def on_dxl_connect(self):
@@ -440,11 +452,13 @@ class ElasticsearchService(Application):
         :rtype: instancemethod
         """
         api_method = None
-        if hasattr(self._es_client, api_name):
+        if api_name and not api_name.startswith("_") and \
+                hasattr(self._es_client, api_name):
             api_attr = getattr(self._es_client, api_name)
             if callable(api_attr):
                 api_method = api_attr
         return api_method
+
 
     def on_register_services(self):
         """

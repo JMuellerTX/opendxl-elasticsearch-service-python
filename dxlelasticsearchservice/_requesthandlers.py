@@ -208,6 +208,8 @@ class ElasticsearchServiceEventCallback(EventCallback): # pylint: disable=too-ma
 
         try:
             body = MessageUtils.json_payload_to_dict(event)
+            if not isinstance(body, dict):
+                raise ValueError("Event payload must be a JSON object")
             if self._id_field_name:
                 document_id = body.get(self._id_field_name)
                 if not document_id:
@@ -310,8 +312,11 @@ class ElasticsearchServiceRequestCallback(RequestCallback):
 
             request_dict = MessageUtils.json_payload_to_dict(request) \
                 if request.payload else {}
+            if not isinstance(request_dict, dict):
+                raise ValueError("Request payload must be a JSON object")
 
             response_data = self._api_method(**request_dict)
+
             MessageUtils.dict_to_json_payload(res, response_data)
 
         except TransportError as ex:

@@ -154,6 +154,31 @@ class ElasticsearchServiceTest(unittest.TestCase):
 
         es_client.index.assert_not_called()
 
+    def test_http_auth_redacted_and_request_validation(self):
+        from mock import patch
+        from dxlclient.message import Request, Message
+        from dxlelasticsearchservice._requesthandlers import \
+            ElasticsearchServiceRequestCallback
+
+        app = ElasticsearchService(self.config_dir)
+        with patch("dxlelasticsearchservice.app.logger.debug") as mock_debug:
+
+            app._load_configuration()
+            logged_text = " ".join(str(call) for call in mock_debug.call_args_list)
+            self.assertNotIn("('elastic', 'test')", logged_text)
+            self.assertIn("--redacted--", logged_text)
+
+        self.assertIsNone(app._get_api_method("_internal"))
+
+        app._dxl_client = MagicMock()
+        cb = ElasticsearchServiceRequestCallback(app, MagicMock())
+        req = Request("/opendxl-elasticsearch/service/elasticsearch-api/get")
+        req.payload = b'["not", "a", "dict"]'
+        cb.on_request(req)
+        sent_res = app._dxl_client.send_response.call_args[0][0]
+        self.assertEqual(Message.MESSAGE_TYPE_ERROR, sent_res.message_type)
+
 
 if __name__ == "__main__":
     unittest.main()
+
