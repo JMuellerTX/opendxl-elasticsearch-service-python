@@ -96,9 +96,9 @@ class ElasticsearchServiceEventCallback(EventCallback): # pylint: disable=too-ma
         if self._transform_script:
             index_operations = self._get_transformed_operations(
                 event, index_parameters)
-            index_operations = index_operations if index_operations else ()
         else:
-            index_operations = [index_parameters]
+            index_operations = [index_parameters] if index_parameters else None
+        index_operations = index_operations if index_operations else ()
 
         for index_operation in index_operations:
             self._log_index_message(logger.debug,
@@ -217,6 +217,7 @@ class ElasticsearchServiceEventCallback(EventCallback): # pylint: disable=too-ma
                         self._id_field_name,
                         "skipping indexing for topic",
                         event.destination_topic)
+                    body = None
         except ValueError:
             if self._transform_script:
                 body = event.payload

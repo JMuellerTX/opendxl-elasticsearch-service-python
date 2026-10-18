@@ -130,6 +130,30 @@ class ElasticsearchServiceTest(unittest.TestCase):
             self.assertEqual("plain text payload",
                              json.loads(call.kwargs["body"])["message"])
 
+    def test_event_callback_skips_invalid_json_payload(self):
+        es_client = MagicMock()
+        callback = ElasticsearchServiceEventCallback(
+            es_client, "eventgroup1", "test-index", "test-doc", None,
+            None, False)
+
+        event = Event("/sample/topic1")
+        event.payload = b"not valid json"
+        callback.on_event(event)
+
+        es_client.index.assert_not_called()
+
+    def test_event_callback_skips_missing_id_field(self):
+        es_client = MagicMock()
+        callback = ElasticsearchServiceEventCallback(
+            es_client, "eventgroup1", "test-index", "test-doc", "event_id",
+            None, False)
+
+        event = Event("/sample/topic1")
+        event.payload = json.dumps({"message": "missing id"}).encode("utf-8")
+        callback.on_event(event)
+
+        es_client.index.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
