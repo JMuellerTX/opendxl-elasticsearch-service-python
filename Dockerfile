@@ -43,6 +43,7 @@ RUN rm -rf /tmp/build
 RUN useradd --system --create-home --shell /usr/sbin/nologin --uid 10001 dxl \
     && mkdir -p /opt/dxlelasticsearchservice-config \
     && chown dxl:dxl /opt/dxlelasticsearchservice-config
+WORKDIR /home/dxl
 USER dxl
 
 VOLUME ["/opt/dxlelasticsearchservice-config"]
