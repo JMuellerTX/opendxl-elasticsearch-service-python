@@ -1,8 +1,6 @@
 # Base image from Python 3.13 (slim)
 FROM python:3.13-slim
 
-VOLUME ["/opt/dxlelasticsearchservice-config"]
-
 # Copy application files
 COPY . /tmp/build
 WORKDIR /tmp/build
@@ -42,7 +40,11 @@ RUN rm -rf /tmp/build
 # Run the service as an unprivileged user. The configuration directory is only
 # read - these services log to stdout - so a host directory mounted there has
 # to be readable by this user, not owned by it.
-RUN useradd --system --create-home --shell /usr/sbin/nologin --uid 10001 dxl
+RUN useradd --system --create-home --shell /usr/sbin/nologin --uid 10001 dxl \
+    && mkdir -p /opt/dxlelasticsearchservice-config \
+    && chown dxl:dxl /opt/dxlelasticsearchservice-config
 USER dxl
+
+VOLUME ["/opt/dxlelasticsearchservice-config"]
 
 CMD ["python", "-m", "dxlelasticsearchservice", "/opt/dxlelasticsearchservice-config"]
